@@ -12,6 +12,7 @@ pipeline {
         //git branch: 'main', url: 'https://github.com/iam-veeramalla/Jenkins-Zero-To-Hero.git'
       }
     }
+    }
     stage('Build and Test') {
       steps {
         sh 'ls -ltr'
@@ -19,12 +20,12 @@ pipeline {
         sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
       }
     }
-    }
     stage('Build and Push Docker Image') {
       environment {
         DOCKER_IMAGE = "vnathanw/image-push:${BUILD_NUMBER}"
         DOCKERFILE_LOCATION = "java-maven-sonar-argocd-helm-k8s/spring-boot-app/Dockerfile"
         REGISTRY_CREDENTIALS = credentials('docker-cred')
+      }
       }
       steps {
         script {
@@ -34,12 +35,12 @@ pipeline {
                 dockerImage.push()
             }
         }
-      }
     }
     stage('Update Deployment File') {
         environment {
             GIT_REPO_NAME = "Continuous-Deployment-ArgoCD"
             GIT_USER_NAME = "vnathanw"
+        }
         }
         steps {
             withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
@@ -55,4 +56,3 @@ pipeline {
             }
         }
     }
-  }
